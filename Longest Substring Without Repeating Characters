@@ -1,0 +1,43 @@
+import java.util.Arrays;
+
+public class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        if (s == null || s.length() == 0) {
+            return 0;
+        }
+
+        int maxLength = 0;
+        int left = 0;
+        
+       
+        int[] lastSeenIndex = new int[256];
+        
+        
+        Arrays.fill(lastSeenIndex, -1);
+
+        for (int right = 0; right < s.length(); right++) {
+            char currentChar = s.charAt(right);
+
+
+            if (lastSeenIndex[currentChar] >= left) {
+                left = lastSeenIndex[currentChar] + 1;
+            }
+
+           
+            lastSeenIndex[currentChar] = right;
+
+            
+            maxLength = Math.max(maxLength, right - left + 1);
+        }
+
+        return maxLength;
+    }
+
+    public static void main(String[] args) {
+        Solution solver = new Solution();
+
+        System.out.println(solver.lengthOfLongestSubstring("abcabcbb")); // Output: 3 ("abc")
+        System.out.println(solver.lengthOfLongestSubstring("bbbbb"));    // Output: 1 ("b")
+        System.out.println(solver.lengthOfLongestSubstring("pwwkew"));   // Output: 3 ("wke")
+    }
+}
