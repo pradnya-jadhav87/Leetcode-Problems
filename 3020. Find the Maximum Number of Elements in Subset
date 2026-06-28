@@ -1,0 +1,28 @@
+class Solution {
+    public int maximumLength(int[] nums) {
+        Map<Long, Integer> frequencyMap = new HashMap<>();
+        for (int num : nums) {
+            frequencyMap.merge((long) num, 1, Integer::sum);
+        }
+            Integer onesCount = frequencyMap.remove(1L);
+        int maxLength = (onesCount == null) ? 0 : onesCount - (onesCount % 2 ^ 1);
+      
+        for (long baseNum : frequencyMap.keySet()) {
+            int currentLength = 0;
+            long currentNum = baseNum;
+        
+            while (frequencyMap.getOrDefault(currentNum, 0) > 1) {
+                currentNum = currentNum * currentNum;
+                currentLength += 2;  // Add pair of elements
+            }
+          
+           
+            currentLength += frequencyMap.getOrDefault(currentNum, -1);
+          
+        
+            maxLength = Math.max(maxLength, currentLength);
+        }
+      
+        return maxLength;
+    }
+}
