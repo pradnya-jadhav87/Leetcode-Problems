@@ -1,0 +1,118 @@
+class Solution {
+    public int maximumSafenessFactor(List<List<Integer>> grid) {
+
+        int n = grid.size();
+        int[][] dist = new int[n][n];
+
+        // If start or end has a thief
+        if (grid.get(0).get(0) == 1 || grid.get(n - 1).get(n - 1) == 1)
+            return 0;
+
+        Queue<int[]> q = new LinkedList<>();
+
+        // Initialize distance array
+        for (int i = 0; i < n; i++) {
+            Arrays.fill(dist[i], Integer.MAX_VALUE);
+        }
+
+        // Add all thief positions into queue
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid.get(i).get(j) == 1) {
+                    dist[i][j] = 0;
+                    q.offer(new int[]{i, j});
+                }
+            }
+        }
+
+        int[] dir = {-1, 0, 1, 0, -1};
+
+        // Multi-source BFS
+        while (!q.isEmpty()) {
+            int[] cur = q.poll();
+
+            for (int k = 0; k < 4; k++) {
+                int nr = cur[0] + dir[k];
+                int nc = cur[1] + dir[k + 1];
+
+                if (nr >= 0 && nr < n && nc >= 0 && nc < n &&
+                        dist[nr][nc] == Integer.MAX_VALUE) {
+
+                    dist[nr][nc] = dist[cur[0]][cur[1]] + 1;
+                    q.offer(new int[]{nr, nc});
+                }
+            }
+        }
+
+        // Store all cells with their distance
+        List<int[]> cells = new ArrayList<>();
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                cells.add(new int[]{dist[i][j], i, j});
+            }
+        }
+
+        // Sort in descending order
+        Collections.sort(cells, (a, b) -> b[0] - a[0]);
+
+        UnionFind uf = new UnionFind(n * n);
+
+        // Connect cells
+        for (int[] cell : cells) {
+
+            int d = cell[0];
+            int r = cell[1];
+            int c = cell[2];
+
+            for (int k = 0; k < 4; k++) {
+
+                int nr = r + dir[k];
+                int nc = c + dir[k + 1];
+
+                if (nr >= 0 && nr < n && nc >= 0 && nc < n &&
+                        dist[nr][nc] >= d) {
+
+                    uf.union(r * n + c, nr * n + nc);
+                }
+            }
+
+            // If start and end become connected
+            if (uf.find(0) == uf.find(n * n - 1)) {
+                return d;
+            }
+        }
+
+        return 0;
+    }
+}
+
+class UnionFind {
+
+    int[] parent;
+
+    public UnionFind(int n) {
+        parent = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
+        }
+    }
+
+    public int find(int x) {
+        if (parent[x] == x)
+            return x;
+
+        parent[x] = find(parent[x]);
+        return parent[x];
+    }
+
+    public void union(int a, int b) {
+        int pa = find(a);
+        int pb = find(b);
+
+        if (pa != pb) {
+            parent[pa] = pb;
+        }
+    }
+}
