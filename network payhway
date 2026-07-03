@@ -1,0 +1,77 @@
+import java.util.*;
+
+class Solution {
+    public int findMaxPathScore(int[][] edges, boolean[] online, long k) {
+
+        int n = online.length;
+
+        List<int[]>[] graph = new ArrayList[n];
+        for (int i = 0; i < n; i++) {
+            graph[i] = new ArrayList<>();
+        }
+
+        int low = Integer.MAX_VALUE;
+        int high = Integer.MIN_VALUE;
+
+        for (int[] e : edges) {
+            graph[e[0]].add(new int[]{e[1], e[2]});
+            low = Math.min(low, e[2]);
+            high = Math.max(high, e[2]);
+        }
+
+        int ans = -1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (check(graph, online, k, mid)) {
+                ans = mid;
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        return ans;
+    }
+
+    private boolean check(List<int[]>[] graph, boolean[] online, long k, int limit) {
+
+        int n = online.length;
+
+        long[] dist = new long[n];
+        Arrays.fill(dist, Long.MAX_VALUE);
+        dist[0] = 0;
+
+        PriorityQueue<long[]> pq = new PriorityQueue<>(
+                (a, b) -> Long.compare(a[0], b[0]));
+
+        pq.offer(new long[]{0, 0});
+
+        while (!pq.isEmpty()) {
+
+            long[] cur = pq.poll();
+            long cost = cur[0];
+            int node = (int) cur[1];
+
+            if (cost > dist[node]) continue;
+
+            for (int[] next : graph[node]) {
+
+                int v = next[0];
+                int w = next[1];
+
+                if (v != n - 1 && !online[v]) continue;
+
+                if (w < limit) continue;
+
+                if (cost + w < dist[v]) {
+                    dist[v] = cost + w;
+                    pq.offer(new long[]{dist[v], v});
+                }
+            }
+        }
+
+        return dist[n - 1] <= k;
+    }
+}
