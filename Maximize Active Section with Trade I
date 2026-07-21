@@ -1,0 +1,41 @@
+class Solution {
+    public int maxActiveSectionsAfterTrade(String s) {
+        char[] characters = s.toCharArray();
+        int length = characters.length;
+
+        int activeCount = 0;
+
+        int leftZeroBlock = 0;
+        int rightZeroBlock = 0;
+        int maxGain = 0;
+
+        int index = 0;
+        while (index < length) {
+            char currentChar = characters[index];
+
+            if (currentChar == '0') {
+                leftZeroBlock++;
+                index++;
+            } else {
+                while (index < length && characters[index] == '1') {
+                    index++;
+                    activeCount++;
+                }
+
+                while (index < length && characters[index] == '0') {
+                    index++;
+                    rightZeroBlock++;
+                }
+
+                if (leftZeroBlock != 0 && rightZeroBlock != 0) {
+                    maxGain = Math.max(maxGain, leftZeroBlock + rightZeroBlock);
+                }
+
+                leftZeroBlock = rightZeroBlock;
+                rightZeroBlock = 0;
+            }
+        }
+
+        return activeCount + maxGain;
+    }
+}
